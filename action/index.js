@@ -4,7 +4,7 @@ const {
   useMultiFileAuthState,
   DisconnectReason,
   fetchLatestBaileysVersion,
-  makeCacheableSignalKeyStore,
+  makeInMemoryStore,
   downloadContentFromMessage,
   jidDecode,
   proto,
@@ -32,7 +32,7 @@ const PhoneNumber = require("awesome-phonenumber");
 const { imageToWebp, videoToWebp, writeExifImg, writeExifVid } = require('../lib/ravenexif');
 const { smsg, isUrl, generateMessageTag, getBuffer, getSizeMedia, fetchJson, await, sleep } = require('../lib/ravenfunc');
 const { sessionName, session, autobio, autolike, port, mycode, anticall, mode, prefix, antiforeign, packname, autoviewstatus } = require("../set.js");
-const store = makeCacheableSignalKeyStore({ logger: pino().child({ level: "silent", stream: "store" }) });
+const store = makeInMemoryStore({ logger: pino().child({ level: "silent", stream: "store" }) });
 const color = (text, color) => {
   return !color ? chalk.green(text) : chalk.keyword(color)(text);
 };
@@ -71,6 +71,8 @@ async function startRaven() {
     }, 10 * 1000);
   }
 
+  store.bind(client.ev);
+  
   client.ev.on("messages.upsert", async (chatUpdate) => {
     try {
       let mek = chatUpdate.messages[0];
@@ -244,7 +246,7 @@ if (!client.public && !mek.key.fromMe && chatUpdate.type === "notify") return;
       console.log(color("Congrats, RAVEN-BOT has successfully connected to this server", "green"));
       console.log(color("Follow me on Instagram as Nic.k_hunter", "red"));
       console.log(color("Text the bot number with menu to check my command list"));
-      const Texxt = `✅ 𝗖𝗼𝗻𝗻𝗲𝗰𝘁𝗲𝗱 ╍>〚𝗥𝗔𝗩𝗘𝗡-𝗕𝗢𝗧〛\n`+`👥 𝗠𝗼𝗱𝗲 ╍>〚${mode}〛\n`+`👤 𝗣𝗿𝗲𝗳𝗶𝘅 ╍>〚${prefix}〛`
+      const Texxt = `✅ 𝗖𝗼𝗻𝗻𝗲𝗰𝘁𝗲𝗱  ╍>〚𝗥𝗔𝗩𝗘𝗡-𝗕𝗢𝗧〛\n`+`👥 𝗠𝗼𝗱𝗲  ╍>〚${mode}〛\n`+`👤 𝗣𝗿𝗲𝗳𝗶𝘅  ╍>〚 ${prefix} 〛`
       client.sendMessage(client.user.id, { text: Texxt });
     }
   });
